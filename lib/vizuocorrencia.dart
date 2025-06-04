@@ -1,16 +1,33 @@
 import 'package:flutter/material.dart';
 
-class VisualizarOcorrenciaPage extends StatelessWidget {
+class VisualizarOcorrenciaPage extends StatefulWidget {
   final String status;
 
   const VisualizarOcorrenciaPage({super.key, required this.status});
 
   @override
-  Widget build(BuildContext context) {
-    final bool isPendente = status.toUpperCase() == 'PENDENTE';
-    final Color statusColor = isPendente ? Colors.red[800]! : Colors.green[700]!;
-    final String statusTexto = isPendente ? 'PENDENTE' : 'SOLUCIONADA';
+  State<VisualizarOcorrenciaPage> createState() => _VisualizarOcorrenciaPageState();
+}
 
+class _VisualizarOcorrenciaPageState extends State<VisualizarOcorrenciaPage> {
+  late bool isPendente;
+  late Color statusColor;
+  late String statusTexto;
+
+  @override
+  void initState() {
+    super.initState();
+    _atualizarStatus();
+  }
+
+  void _atualizarStatus() {
+    isPendente = widget.status.toUpperCase() == 'PENDENTE';
+    statusColor = isPendente ? Colors.red[800]! : Colors.green[700]!;
+    statusTexto = isPendente ? 'PENDENTE' : 'SOLUCIONADA';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFEFEF),
       body: SafeArea(
