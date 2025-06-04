@@ -6,6 +6,7 @@ import 'login.dart';
 import 'principal.dart';
 import 'occorrencia.dart';
 import 'vizuocorrencia.dart';
+import 'vizuocorrenciapendente.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,7 +35,7 @@ class TelaInicial extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const VisualizarOcorrenciaPage(status: '',)),
+              MaterialPageRoute(builder: (context) => const OpsApp()),
             );
           },
           child: Image.asset("assets/images/imagem.png"),
