@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'cadastro.dart';
+import 'login.dart';
  
 void main() {
   runApp(const MaterialApp(
@@ -51,23 +53,37 @@ class PrincipalScreen extends StatelessWidget {
                   CustomButton(
                     text: 'SOU ALUNO',
                     onPressed: () {
-                      // Ação ao clicar em "SOU ALUNO"
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
                   CustomButton(
                     text: 'SOU PROFESSOR',
                     onPressed: () {
-                      // Ação ao clicar em "SOU PROFESSOR"
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
                     },
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Não tem cadastro? Clique aqui',
-                    style: TextStyle(
-                      color: Color(0xFF060C2C),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const CadastroScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'Não tem cadastro? Clique aqui',
+                      style: TextStyle(
+                        color: Color(0xFF060C2C),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],

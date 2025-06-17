@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'principal.dart';
 
 void main() => runApp(const MyApp());
 
@@ -113,7 +114,10 @@ class CadastroScreen extends StatelessWidget {
                     Center(
                       child: TextButton(
                         onPressed: () {
-                          // navegação para tela de login
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PrincipalScreen()),
+                          );
                         },
                         child: const Text(
                           'Já tem Cadastro? Clique aqui',
