@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(const OcorrenciaApp());
+void main() => runApp(const OcorrenciaApp());  //essa pág é de CRIAR ocorrência//
 
 class OcorrenciaApp extends StatelessWidget {
   const OcorrenciaApp({super.key});

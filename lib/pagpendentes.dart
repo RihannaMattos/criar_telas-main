@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'occorrencia.dart';
   
 class OpsApp extends StatelessWidget {
   const OpsApp({super.key});
@@ -73,7 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildOcorrenciaCard(isPending),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CriarOcorrenciaPage()),
+                );
+              },
               icon: const Icon(Icons.add),
               label: const Text("CRIAR OCORRÊNCIA"),
               style: ElevatedButton.styleFrom(
