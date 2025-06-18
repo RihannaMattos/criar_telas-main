@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'principal.dart';
+import 'pagpendentes.dart';
 
 void main() => runApp(const MyApp());
 
@@ -21,36 +22,23 @@ class CadastroScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F2F), // Fundo azul escuro
+      backgroundColor: const Color(0xFF060C2C), // Fundo azul escuro
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               const SizedBox(height: 40),
-              // Logo e Título
-              Column(
-                children: [
-                  const Icon(Icons.build, size: 80, color: Colors.white),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'OPS!',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Text(
-                    'Sistema para ocorrências!',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              // Logo
+              Image.asset(
+                'assets/images/imagem.png',
+                height: 400,
               ),
               const SizedBox(height: 40),
               // Container branco com bordas arredondadas
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -97,15 +85,20 @@ class CadastroScreen extends StatelessWidget {
                           backgroundColor: Colors.grey[300],
                           foregroundColor: Colors.black,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
+                          elevation: 4,
                         ),
                         onPressed: () {
-                          // lógica de cadastro aqui
+                          // Navega para a página principal ao clicar em CADASTRAR
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PrincipalScreen()),
+                          );
                         },
                         child: const Text(
-                          'ENTRAR',
+                          'CADASTRAR',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),

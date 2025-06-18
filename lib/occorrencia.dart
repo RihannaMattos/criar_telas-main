@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'services/ocorrencia_service.dart';
 
 void main() => runApp(const OcorrenciaApp());  //essa pág é de CRIAR ocorrência//
 
@@ -14,187 +16,264 @@ class OcorrenciaApp extends StatelessWidget {
   }
 }
 
-class CriarOcorrenciaPage extends StatelessWidget {
+class CriarOcorrenciaPage extends StatefulWidget {
   const CriarOcorrenciaPage({super.key});
-
+ 
+  @override
+  State<CriarOcorrenciaPage> createState() => _CriarOcorrenciaPageState();
+}
+ 
+class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
+  String? laboratorioSelecionado;
+  String? andarSelecionado;
+  final TextEditingController problemaController = TextEditingController();
+  final TextEditingController patrimonioController = TextEditingController();
+  String? selectedFileName;
+  PlatformFile? selectedFile;
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFEF),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Container(
-              width: 380,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
+      backgroundColor: const Color(0xFF0C1226),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/opsdeitado.png',
+                height: 80,
               ),
-              child: Column(
-                children: [
-                  Container(
-                    color: const Color(0xFF07122C),
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 16),
-                        Image.asset(
-                          'assets/images/imagem.png', // Adicione um ícone conforme a imagem original
-                          height: 50,
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'OPS!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'CRIE A OCORRÊNCIA',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                      ],
+              const SizedBox(height: 20),
+              const Text(
+                'CRIE A OCORRÊNCIA',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('INSIRA AS INFORMAÇÕES',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        )),
+                    const SizedBox(height: 20),
+                    const Text('QUAL O LABORATÓRIO?',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    _buildDropdownButton(
+                      hint: 'SELECIONE O LAB',
+                      value: laboratorioSelecionado,
+                      onChanged: (value) {
+                        setState(() {
+                          laboratorioSelecionado = value;
+                        });
+                      },
+                      items: ['Lab 1', 'Lab 2', 'Lab 3', 'Lab 4'],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    const SizedBox(height: 14),
+                    _buildDropdownButton(
+                      hint: 'SELECIONE O ANDAR',
+                      value: andarSelecionado,
+                      onChanged: (value) {
+                        setState(() {
+                          andarSelecionado = value;
+                        });
+                      },
+                      items: ['1º Andar', '2º Andar', '3º Andar', '4º Andar'],
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('DESCREVA O PROBLEMA:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: problemaController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: 'escreva:',
+                        filled: true,
+                        fillColor: Colors.grey[300],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('PATRIMÔNIO:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: patrimonioController,
+                      decoration: InputDecoration(
+                        hintText: 'ex: 041776',
+                        filled: true,
+                        fillColor: Colors.grey[300],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('ENVIE UMA FOTO:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'INSIRA AS INFORMAÇÕES',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
-                        const Text('QUAL O LABORATÓRIO?', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          decoration: dropDecoration,
-                          items: const [
-                            DropdownMenuItem(value: 'lab1', child: Text('Lab 1')),
-                            DropdownMenuItem(value: 'lab2', child: Text('Lab 2')),
-                          ],
-                          onChanged: (value) {},
-                          hint: const Text('SELECIONE O LAB'),
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          decoration: dropDecoration,
-                          items: const [
-                            DropdownMenuItem(value: '1', child: Text('1º Andar')),
-                            DropdownMenuItem(value: '2', child: Text('2º Andar')),
-                          ],
-                          onChanged: (value) {},
-                          hint: const Text('SELECIONE O ANDAR'),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('DESCREVA O PROBLEMA:', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          maxLines: 4,
-                          decoration: InputDecoration(
-                            hintText: 'escreva:',
-                            fillColor: Colors.grey[200],
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('PATRIMÔNIO:', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            hintText: 'ex: 041776',
-                            fillColor: Colors.grey[200],
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('ENVIE UMA FOTO:', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: () {},
+                        ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey[300],
-                            foregroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 3,
+                          ),
+                          onPressed: () async {
+                            // Abre o seletor de arquivos
+                            FilePickerResult? result = await FilePicker.platform.pickFiles(
+                              type: FileType.image,
+                              allowMultiple: false,
+                            );
+                            
+                            if (result != null) {
+                              setState(() {
+                                selectedFile = result.files.first;
+                                selectedFileName = selectedFile!.name;
+                              });
+                            }
+                          },
+                          icon: const Icon(Icons.attach_file, color: Colors.black),
+                          label: const Text('ANEXAR',
+                              style: TextStyle(color: Colors.black)),
+                        ),
+                        if (selectedFileName != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              'Arquivo selecionado: $selectedFileName',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.attach_file),
-                              SizedBox(width: 8),
-                              Text('ANEXAR'),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF07122C),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                          ),
-                          child: const Text('ENVIAR'),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black,
-                            elevation: 4,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                          ),
-                          child: const Text('CANCELAR'),
-                        ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              const SizedBox(height: 24),
+              _buildActionButton('ENVIAR', onPressed: () {
+                // Validar campos
+                if (laboratorioSelecionado == null || 
+                    andarSelecionado == null || 
+                    problemaController.text.isEmpty || 
+                    patrimonioController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Por favor, preencha todos os campos obrigatórios'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                
+                // Adicionar ocorrência
+                final ocorrenciaService = OcorrenciaService();
+                ocorrenciaService.adicionarOcorrencia(
+                  laboratorio: laboratorioSelecionado!,
+                  andar: andarSelecionado!,
+                  problema: problemaController.text,
+                  patrimonio: patrimonioController.text,
+                  fotoNome: selectedFileName,
+                );
+                
+                // Mostrar mensagem de sucesso
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Ocorrência criada com sucesso!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                
+                // Voltar para a tela anterior
+                Navigator.pop(context);
+              }, filled: true),
+              const SizedBox(height: 12),
+              _buildActionButton('CANCELAR', onPressed: () {
+                Navigator.pop(context);
+              }, filled: false),
+            ],
           ),
         ),
       ),
     );
   }
+ 
+  Widget _buildDropdownButton({
+    required String hint,
+    required String? value,
+    required void Function(String?) onChanged,
+    required List<String> items,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0C1226),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 4)],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          hint: Text(hint,
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+          dropdownColor: Colors.white,
+          style: const TextStyle(color: Colors.black),
+          isExpanded: true,
+          onChanged: onChanged,
+          items: items
+              .map((item) => DropdownMenuItem(value: item, child: Text(item)))
+              .toList(),
+        ),
+      ),
+    );
+  }
+ 
+  Widget _buildActionButton(String label,
+      {required VoidCallback onPressed, required bool filled}) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: filled ? const Color(0xFF0C1226) : Colors.grey[300],
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+        elevation: 6,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      onPressed: onPressed,
+      child: Text(
+        label,
+        style: TextStyle(
+          color: filled ? Colors.white : Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
 }
-
-const InputDecoration dropDecoration = InputDecoration(
-  filled: true,
-  fillColor: Color(0xFF07122C),
-  hintStyle: TextStyle(color: Colors.white),
-  enabledBorder: OutlineInputBorder(
-    borderSide: BorderSide.none,
-    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-  ),
-  contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-);

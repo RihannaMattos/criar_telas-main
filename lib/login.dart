@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'pagpendentes.dart';
 
 void main() => runApp(const MyApp());
 
@@ -20,36 +21,23 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F2F), // Fundo azul escuro
+      backgroundColor: const Color(0xFF060C2C), // Fundo azul escuro
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               const SizedBox(height: 40),
-              // Logo e Título
-              Column(
-                children: [
-                  const Icon(Icons.build, size: 80, color: Colors.white),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'OPS!',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Text(
-                    'Sistema para ocorrências!',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+              // Logo
+              Image.asset(
+                'assets/images/imagem.png',
+                height: 400,
               ),
               const SizedBox(height: 40),
               // Container branco com bordas arredondadas
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -102,7 +90,11 @@ class LoginScreen extends StatelessWidget {
                           elevation: 4,
                         ),
                         onPressed: () {
-                          // lógica de login aqui
+                          // Navega para a página de pendentes ao clicar em ENTRAR
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const HomeScreen()),
+                          );
                         },
                         child: const Text(
                           'ENTRAR',

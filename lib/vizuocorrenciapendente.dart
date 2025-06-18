@@ -1,170 +1,130 @@
 import 'package:flutter/material.dart';
+import 'models/ocorrencia_model.dart';
 
-class VisualizarOcorrenciaPendentePage extends StatefulWidget {
-  const VisualizarOcorrenciaPendentePage({super.key, required String status});
+class VisualizarOcorrenciaPage extends StatelessWidget {
+  final Ocorrencia ocorrencia;
 
-  @override
-  State<VisualizarOcorrenciaPendentePage> createState() => _VisualizarOcorrenciaPendentePageState();
-}
-
-class _VisualizarOcorrenciaPendentePageState extends State<VisualizarOcorrenciaPendentePage> {
-  final bool isPendente = true;
-  late Color statusColor;
-  late String statusTexto;
-
-  @override
-  void initState() {
-    super.initState();
-    statusColor = Colors.red[800]!;
-    statusTexto = 'PENDENTE';
-  }
+  const VisualizarOcorrenciaPage({
+    super.key,
+    required this.ocorrencia,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFEF),
+      backgroundColor: const Color(0xFF0C1226),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0C1226),
+        title: const Text('Detalhes da Ocorrência', style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                width: 380,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image.asset(
+                'assets/images/opsdeitado.png',
+                height: 80,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF07122C),
-                  borderRadius: BorderRadius.circular(20.0),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ocorrência #${ocorrencia.id}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildInfoRow('Data de Envio:', 
+                      '${ocorrencia.dataEnvio.day}/${ocorrencia.dataEnvio.month}/${ocorrencia.dataEnvio.year}'),
+                    _buildInfoRow('Status:', 
+                      ocorrencia.resolvida ? 'SOLUCIONADA' : 'PENDENTE',
+                      valueColor: ocorrencia.resolvida ? Colors.green : Colors.red),
+                    _buildInfoRow('Laboratório:', ocorrencia.laboratorio),
+                    _buildInfoRow('Andar:', ocorrencia.andar),
+                    _buildInfoRow('Patrimônio:', ocorrencia.patrimonio),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Descrição do Problema:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 5),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(ocorrencia.problema),
+                    ),
+                    if (ocorrencia.fotoNome != null) ...[
+                      const SizedBox(height: 15),
                       const Text(
-                        'DATA DE ENVIO  00/00/00\nNº DA OCORRÊNCIA: XXX',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        'Foto Anexada:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'ANDAR DO LABORATÓRIO:',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              offset: Offset(2, 4),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: const Text(
-                          'ANDAR SELECIONADO',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'NÚMERO DO LABORATÓRIO:',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              offset: Offset(2, 4),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: const Text(
-                          'LAB. SELECIONADO',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'DESCRIÇÃO DO PROBLEMA:',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(12.0),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                        child: const Text(
-                          'Texto da Descrição do problema pelo usuário...',
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'CLIQUE AO LADO PARA VISUALIZAR A IMAGEM',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey[300],
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                            ),
-                            child: const Text('VISUALIZAR FOTO'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'STATUS:',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          statusTexto,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: 5),
+                      Text(ocorrencia.fotoNome!),
                     ],
-                  ),
+                  ],
                 ),
               ),
-            ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0C1226),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('VOLTAR'),
+                ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(width: 5),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(color: valueColor),
+            ),
+          ),
+        ],
       ),
     );
   }

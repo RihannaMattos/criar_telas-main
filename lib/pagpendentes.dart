@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'occorrencia.dart';
+import 'principal.dart';
+import 'services/ocorrencia_service.dart';
+import 'models/ocorrencia_model.dart';
+import 'vizuocorrenciapendente.dart';
   
 class OpsApp extends StatelessWidget {
   const OpsApp({super.key});
@@ -27,137 +31,203 @@ class HomeScreen extends StatefulWidget {
  
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
- 
+  final OcorrenciaService _ocorrenciaService = OcorrenciaService();
+  
   @override
   Widget build(BuildContext context) {
     final isPending = selectedIndex == 0;
+    final ocorrencias = isPending 
+        ? _ocorrenciaService.getOcorrenciasPendentes() 
+        : _ocorrenciaService.getOcorrenciasSolucionadas();
  
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            const Icon(Icons.build_circle, size: 80, color: Colors.black87),
-            const Text(
-              'OPS!',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              Image.asset(
+                'assets/images/opsdeitado.png',
+                height: 80,
               ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'OCORRÊNCIAS',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                backgroundColor: Colors.black12,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildTabButton("PENDENTES", 0),
-                const SizedBox(width: 10),
-                _buildTabButton("SOLUCIONADAS", 1),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'HISTÓRICO DE PENDENTES:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            _buildOcorrenciaCard(isPending),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CriarOcorrenciaPage()),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text("CRIAR OCORRÊNCIA"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[300],
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 4,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-            ),
-            const Spacer(),
-            Container(
-              color: Colors.indigo[900],
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: const [
-                  CircleAvatar(
-                    backgroundColor: Colors.grey,
-                    child: Icon(Icons.person),
+              const SizedBox(height: 24),
+              _buildTitleBox('OCORRÊNCIAS'),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => selectedIndex = 0),
+                    child: _buildButton('PENDENTES', ativo: isPending),
                   ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'rm90899@dominio.fieb.edu.br\nSair da Conta',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  GestureDetector(
+                    onTap: () => setState(() => selectedIndex = 1),
+                    child: _buildButton('SOLUCIONADAS', ativo: !isPending),
                   ),
                 ],
               ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
- 
-  Widget _buildTabButton(String text, int index) {
-    final isSelected = selectedIndex == index;
-    return ElevatedButton(
-      onPressed: () => setState(() => selectedIndex = index),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.indigo[900] : Colors.grey[300],
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-        elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      ),
-      child: Text(text),
-    );
-  }
- 
-  Widget _buildOcorrenciaCard(bool isPending) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 40),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: Colors.red[100],
-      elevation: 6,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Data De Envio: 00/00/00", style: TextStyle(fontWeight: FontWeight.bold)),
-            const Text("Nº Da Ocorrência", style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(
-              "Status: ${isPending ? 'PENDENTE' : 'SOLUCIONADA'}",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isPending ? Colors.red[900] : Colors.green[800],
+              const SizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  isPending ? 'HISTÓRICO DE PENDENTES:' : 'HISTÓRICO DE SOLUCIONADAS:',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              ocorrencias.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        isPending 
+                            ? 'Não há ocorrências pendentes' 
+                            : 'Não há ocorrências solucionadas',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  )
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: ocorrencias.length,
+                      itemBuilder: (context, index) {
+                        final ocorrencia = ocorrencias[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VisualizarOcorrenciaPage(
+                                  ocorrencia: ocorrencia,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: _buildCard(
+                              ocorrencia: ocorrencia,
+                              isPending: isPending,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              const Spacer(),
+              _buildCriarOcorrenciaButton(),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
+      ),
+      bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+  
+  Widget _buildButton(String text, {required bool ativo}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0C1226),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: ativo
+            ? [const BoxShadow(color: Colors.black38, blurRadius: 4, offset: Offset(2, 2))]
+            : [],
+      ),
+      child: Text(text,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+    );
+  }
+ 
+  Widget _buildTitleBox(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      color: Colors.grey[300],
+      child: Text(text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+    );
+  }
+ 
+  Widget _buildCard({required Ocorrencia ocorrencia, required bool isPending}) {
+    final status = isPending ? 'PENDENTE' : 'SOLUCIONADA';
+    final color = isPending ? const Color(0xFFD32F2F) : Colors.green;
+    final bgColor = isPending ? const Color(0xFFFFE5E5) : Colors.green[100]!;
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Data De Envio: ${ocorrencia.dataEnvio.day}/${ocorrencia.dataEnvio.month}/${ocorrencia.dataEnvio.year}'),
+          Text('Nº Da Ocorrência: ${ocorrencia.id}'),
+          Text('Lab: ${ocorrencia.laboratorio} - ${ocorrencia.andar}'),
+          const SizedBox(height: 8),
+          Text('Status: $status',
+              style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+ 
+  Widget _buildCriarOcorrenciaButton() {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[300],
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const CriarOcorrenciaPage()),
+        );
+      },
+      icon: const Icon(Icons.add, color: Colors.black),
+      label: const Text('CRIAR OCORRÊNCIA', style: TextStyle(color: Colors.black)),
+    );
+  }
+ 
+  Widget _buildBottomBar() {
+    return Container(
+      color: const Color(0xFF0C1226),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      child: Row(
+        children: [
+          const Icon(Icons.account_circle, color: Colors.white),
+          const SizedBox(width: 8),
+          const Expanded(
+            child: Text('rm90899@dominio.fieb.edu.br', style: TextStyle(color: Colors.white)),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const PrincipalScreen()),
+              );
+            },
+            child: const Text('Sair da Conta',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                )),
+          ),
+        ],
       ),
     );
   }
