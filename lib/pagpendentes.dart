@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
               Image.asset(
@@ -77,10 +78,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              ocorrencias.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+              Expanded(
+                child: ocorrencias.isEmpty
+                  ? Center(
                       child: Text(
                         isPending 
                             ? 'Não há ocorrências pendentes' 
@@ -90,10 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.grey[600],
                         ),
                       ),
-                    ),
-                  )
-                : Expanded(
-                    child: ListView.builder(
+                    )
+                  : ListView.builder(
                       itemCount: ocorrencias.length,
                       itemBuilder: (context, index) {
                         final ocorrencia = ocorrencias[index];
@@ -118,10 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
                     ),
-                  ),
-              const Spacer(),
+              ),
+              const SizedBox(height: 16),
               _buildCriarOcorrenciaButton(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
             ],
           ),
         ),
