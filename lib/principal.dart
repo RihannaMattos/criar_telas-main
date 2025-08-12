@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 import 'cadastro.dart';
 import 'login.dart';
  
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: PrincipalScreen(),
-  ));
-}
- 
 class PrincipalScreen extends StatelessWidget {
   const PrincipalScreen({super.key});
  

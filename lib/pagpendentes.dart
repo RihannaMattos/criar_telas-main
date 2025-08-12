@@ -2,25 +2,9 @@ import 'package:flutter/material.dart';
 import 'occorrencia.dart';
 import 'principal.dart';
 import 'services/ocorrencia_service.dart';
+import 'services/auth_service.dart';
 import 'models/ocorrencia_model.dart';
 import 'vizuocorrenciapendente.dart';
-  
-class OpsApp extends StatelessWidget {
-  const OpsApp({super.key});
- 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'OPS!',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        fontFamily: 'Arial',
-      ),
-      home: const HomeScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
  
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -212,11 +196,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text('rm90899@dominio.fieb.edu.br', style: TextStyle(color: Colors.white)),
           ),
           GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const PrincipalScreen()),
-              );
+            onTap: () async {
+              await AuthService.logout();
+              if (mounted) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PrincipalScreen()),
+                );
+              }
             },
             child: const Text('Sair da Conta',
                 style: TextStyle(

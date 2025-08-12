@@ -1,12 +1,7 @@
-import 'package:criar_telas/pagpendentes.dart';
 import 'package:flutter/material.dart';
-import 'tela2.dart'; // importa a nova tela
-import 'cadastro.dart';
-import 'login.dart';
 import 'principal.dart';
-import 'occorrencia.dart';
-import 'vizuocorrencia.dart';
-import 'vizuocorrenciapendente.dart';
+import 'pagpendentes.dart';
+import 'services/auth_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,8 +13,40 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'App com Navegação',
-      home: const TelaInicial(),
+      title: 'OPS!',
+      home: const AuthWrapper(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: AuthService.isLoggedIn(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        
+        if (snapshot.data == true) {
+          return const HomeScreen();
+        } else {
+          return const TelaInicial();
+        }
+      },
     );
   }
 }

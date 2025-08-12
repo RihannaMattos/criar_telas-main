@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'pagpendentes.dart';
+import 'cadastro.dart';
 
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const LoginScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class _LoginScreenState extends State<LoginScreen> {
+  void _login() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +60,7 @@ class LoginScreen extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextField(
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: 'Seu RM:',
                         contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -89,19 +91,31 @@ class LoginScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           elevation: 4,
                         ),
-                        onPressed: () {
-                          // Navega para a página de pendentes ao clicar em ENTRAR
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const HomeScreen()),
-                          );
-                        },
+                        onPressed: _login,
                         child: const Text(
                           'ENTRAR',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const CadastroScreen()),
+                          );
+                        },
+                        child: const Text(
+                          'Não tem cadastro? Clique aqui',
+                          style: TextStyle(
+                            color: Color(0xFF0B0F2F),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),

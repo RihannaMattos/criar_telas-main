@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'principal.dart';
 import 'pagpendentes.dart';
+import 'login.dart';
 
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CadastroScreen extends StatefulWidget {
+  const CadastroScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const CadastroScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  State<CadastroScreen> createState() => _CadastroScreenState();
 }
 
-class CadastroScreen extends StatelessWidget {
-  const CadastroScreen({super.key});
+class _CadastroScreenState extends State<CadastroScreen> {
+  void _cadastrar() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +60,7 @@ class CadastroScreen extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextField(
+                      keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         hintText: 'Seu RM:',
                         contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -90,13 +91,7 @@ class CadastroScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           elevation: 4,
                         ),
-                        onPressed: () {
-                          // Navega para a página principal ao clicar em CADASTRAR
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const PrincipalScreen()),
-                          );
-                        },
+                        onPressed: _cadastrar,
                         child: const Text(
                           'CADASTRAR',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -107,13 +102,13 @@ class CadastroScreen extends StatelessWidget {
                     Center(
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const PrincipalScreen()),
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
                           );
                         },
                         child: const Text(
-                          'Já tem Cadastro? Clique aqui',
+                          'Já tem Cadastro? Faça Login',
                           style: TextStyle(
                             color: Color(0xFF0B0F2F),
                             fontWeight: FontWeight.bold,
