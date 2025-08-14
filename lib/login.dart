@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pagpendentes.dart';
 import 'cadastro.dart';
+import 'login_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,11 +10,57 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  void _login() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  final _emailController = TextEditingController();
+  final _rmController = TextEditingController();
+  final _senhaController = TextEditingController();
+  bool _isLoading = false;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    bool isAluno = _tabController.index == 0;
+    String identifier = isAluno ? _rmController.text : _emailController.text;
+    
+    if (identifier.isEmpty || _senhaController.text.isEmpty) {
+      _showMessage(isAluno ? 'Preencha RM e senha' : 'Preencha email e senha');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    
+    final result = await LoginController.login(
+      identifier,
+      _senhaController.text,
+      isAluno,
+    );
+    
+    setState(() => _isLoading = false);
+    
+    if (result['success']) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      _showMessage(result['message']);
+    }
+  }
+  
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 
@@ -55,23 +102,67 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'COLOQUE SEU RM',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: 'Seu RM:',
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      ),
+                    TabBar(
+                      controller: _tabController,
+                      labelColor: Color(0xFF0B0F2F),
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Color(0xFF0B0F2F),
+                      tabs: const [
+                        Tab(text: 'ALUNO'),
+                        Tab(text: 'PROFESSOR/TÉCNICO'),
+                      ],
                     ),
                     const SizedBox(height: 20),
+                    SizedBox(
+                      height: 120,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          // Aba Aluno
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'RM',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextField(
+                                controller: _rmController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: 'Seu RM',
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Aba Professor/Técnico
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'EMAIL',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  hintText: 'Seu email',
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                     const Text(
                       'SENHA',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextField(
+                      controller: _senhaController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Sua Senha',
@@ -91,11 +182,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           elevation: 4,
                         ),
-                        onPressed: _login,
-                        child: const Text(
-                          'ENTRAR',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        onPressed: _isLoading ? null : _login,
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : const Text(
+                                'ENTRAR',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 16),

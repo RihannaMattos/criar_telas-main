@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'principal.dart';
 import 'pagpendentes.dart';
 import 'services/auth_service.dart';
+import 'login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,22 +52,30 @@ class _AuthWrapperState extends State<AuthWrapper> {
   }
 }
 
-class TelaInicial extends StatelessWidget {
+class TelaInicial extends StatefulWidget {
   const TelaInicial({super.key});
+
+  @override
+  State<TelaInicial> createState() => _TelaInicialState();
+}
+
+class _TelaInicialState extends State<TelaInicial> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PrincipalScreen()),
-            );
-          },
-          child: Image.asset("assets/images/imagem.png"),
-        ),
+        child: Image.asset("assets/images/imagem.png"),
       ),
     );
   }

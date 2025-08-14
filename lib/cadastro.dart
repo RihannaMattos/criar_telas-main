@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pagpendentes.dart';
 import 'login.dart';
+import 'cadastro_controller.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -10,10 +11,44 @@ class CadastroScreen extends StatefulWidget {
 }
 
 class _CadastroScreenState extends State<CadastroScreen> {
-  void _cadastrar() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+  final _nomeController = TextEditingController();
+  final _rmController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _cadastrar() async {
+    if (_nomeController.text.isEmpty || _rmController.text.isEmpty || 
+        _emailController.text.isEmpty || _senhaController.text.isEmpty) {
+      _showMessage('Preencha todos os campos');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    
+    final result = await CadastroController.cadastrar(
+      _nomeController.text,
+      _rmController.text,
+      _emailController.text,
+      _senhaController.text,
+    );
+    
+    setState(() => _isLoading = false);
+    
+    if (result['success']) {
+      _showMessage(result['message']);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } else {
+      _showMessage(result['message']);
+    }
+  }
+  
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 
@@ -56,13 +91,39 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      'COLOQUE SEU RM',
+                      'NOME',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextField(
+                      controller: _nomeController,
+                      decoration: InputDecoration(
+                        hintText: 'Seu nome completo',
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'RM',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextField(
+                      controller: _rmController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        hintText: 'Seu RM:',
+                        hintText: 'Seu RM',
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'EMAIL',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        hintText: 'Seu email',
                         contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
@@ -72,9 +133,10 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextField(
+                      controller: _senhaController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        hintText: 'Sua Senha',
+                        hintText: 'Sua senha',
                         contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
@@ -91,11 +153,13 @@ class _CadastroScreenState extends State<CadastroScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           elevation: 4,
                         ),
-                        onPressed: _cadastrar,
-                        child: const Text(
-                          'CADASTRAR',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        onPressed: _isLoading ? null : _cadastrar,
+                        child: _isLoading
+                            ? const CircularProgressIndicator()
+                            : const Text(
+                                'CADASTRAR',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 16),
