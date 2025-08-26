@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       indicatorColor: Color(0xFF0B0F2F),
                       tabs: const [
                         Tab(text: 'ALUNO'),
-                        Tab(text: 'PROFESSOR/TÉCNICO'),
+                        Tab(text: 'PROFESSOR'),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ),
                             ],
                           ),
-                          // Aba Professor/Técnico
+                          // Aba Professor
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

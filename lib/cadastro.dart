@@ -9,17 +9,41 @@ class CadastroScreen extends StatefulWidget {
   State<CadastroScreen> createState() => _CadastroScreenState();
 }
 
-class _CadastroScreenState extends State<CadastroScreen> {
+class _CadastroScreenState extends State<CadastroScreen> with SingleTickerProviderStateMixin {
   final _nomeController = TextEditingController();
   final _rmController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   bool _isLoading = false;
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   Future<void> _cadastrar() async {
-    if (_nomeController.text.isEmpty || _rmController.text.isEmpty || 
-        _emailController.text.isEmpty || _senhaController.text.isEmpty) {
-      _showMessage('Preencha todos os campos');
+    bool isAluno = _tabController.index == 0;
+    
+    if (_nomeController.text.isEmpty || _senhaController.text.isEmpty) {
+      _showMessage('Preencha nome e senha');
+      return;
+    }
+    
+    if (isAluno && _rmController.text.isEmpty) {
+      _showMessage('Preencha o RM');
+      return;
+    }
+    
+    if (!isAluno && _emailController.text.isEmpty) {
+      _showMessage('Preencha o email');
       return;
     }
 
@@ -27,8 +51,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
     
     final result = await CadastroController.cadastrar(
       _nomeController.text,
-      _rmController.text,
-      _emailController.text,
+      isAluno ? _rmController.text : '',
+      isAluno ? '' : _emailController.text,
       _senhaController.text,
     );
     
@@ -89,6 +113,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    TabBar(
+                      controller: _tabController,
+                      labelColor: Color(0xFF0B0F2F),
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Color(0xFF0B0F2F),
+                      tabs: const [
+                        Tab(text: 'ALUNO'),
+                        Tab(text: 'PROFESSOR'),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     const Text(
                       'NOME',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -101,29 +136,48 @@ class _CadastroScreenState extends State<CadastroScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'RM',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      controller: _rmController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        hintText: 'Seu RM',
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'EMAIL',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: 'Seu email',
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    SizedBox(
+                      height: 80,
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          // Aba Aluno
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'RM',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextField(
+                                controller: _rmController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  hintText: 'Seu RM',
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Aba Professor
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'EMAIL',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  hintText: 'Seu email',
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
