@@ -20,7 +20,6 @@ class OcorrenciaService {
     required String andar,
     required String problema,
     required String patrimonio,
-    String? fotoNome,
   }) {
     final ocorrencia = Ocorrencia(
       id: _nextId++,
@@ -28,7 +27,6 @@ class OcorrenciaService {
       andar: andar,
       problema: problema,
       patrimonio: patrimonio,
-      fotoNome: fotoNome,
       dataEnvio: DateTime.now(),
     );
     

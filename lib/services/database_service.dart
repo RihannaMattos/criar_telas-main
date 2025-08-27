@@ -18,8 +18,9 @@ class DatabaseService {
     String path = join(await getDatabasesPath(), 'app_database.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createTable,
+      onUpgrade: _upgradeDatabase,
     );
   }
 
@@ -31,6 +32,34 @@ class DatabaseService {
         senha TEXT NOT NULL
       )
     ''');
+    
+    await db.execute('''
+      CREATE TABLE ocorrencias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        laboratorio TEXT NOT NULL,
+        andar TEXT NOT NULL,
+        problema TEXT NOT NULL,
+        patrimonio TEXT NOT NULL,
+        dataEnvio TEXT NOT NULL,
+        resolvida INTEGER DEFAULT 0
+      )
+    ''');
+  }
+
+  static Future<void> _upgradeDatabase(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE ocorrencias (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          laboratorio TEXT NOT NULL,
+          andar TEXT NOT NULL,
+          problema TEXT NOT NULL,
+          patrimonio TEXT NOT NULL,
+          dataEnvio TEXT NOT NULL,
+          resolvida INTEGER DEFAULT 0
+        )
+      ''');
+    }
   }
 
   static String _hashPassword(String password) {
@@ -93,5 +122,31 @@ class DatabaseService {
     } catch (e) {
       return false;
     }
+  }
+
+  // Métodos para ocorrências
+  static Future<int> insertOcorrencia(Map<String, dynamic> ocorrencia) async {
+    final db = await database;
+    return await db.insert('ocorrencias', ocorrencia);
+  }
+
+  static Future<List<Map<String, dynamic>>> getOcorrencias() async {
+    final db = await database;
+    return await db.query('ocorrencias', orderBy: 'id DESC');
+  }
+
+  static Future<List<Map<String, dynamic>>> getOcorrenciasPendentes() async {
+    final db = await database;
+    return await db.query('ocorrencias', where: 'resolvida = ?', whereArgs: [0], orderBy: 'id DESC');
+  }
+
+  static Future<List<Map<String, dynamic>>> getOcorrenciasSolucionadas() async {
+    final db = await database;
+    return await db.query('ocorrencias', where: 'resolvida = ?', whereArgs: [1], orderBy: 'id DESC');
+  }
+
+  static Future<void> marcarOcorrenciaResolvida(int id) async {
+    final db = await database;
+    await db.update('ocorrencias', {'resolvida': 1}, where: 'id = ?', whereArgs: [id]);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'occorrencia.dart';
-import 'principal.dart';
+import 'login.dart';
 import 'services/ocorrencia_service.dart';
 import 'services/auth_service.dart';
 import 'models/ocorrencia_model.dart';
@@ -16,6 +16,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   final OcorrenciaService _ocorrenciaService = OcorrenciaService();
+  String? userRm;
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRm();
+  }
+  
+  Future<void> _loadUserRm() async {
+    final rm = await AuthService.getCurrentUserRm();
+    setState(() {
+      userRm = rm;
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -173,11 +187,16 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
-      onPressed: () {
-        Navigator.push(
+      onPressed: () async {
+        final resultado = await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CriarOcorrenciaPage()),
         );
+        
+        // Se uma nova ocorrência foi criada, atualizar a tela
+        if (resultado != null) {
+          setState(() {});
+        }
       },
       icon: const Icon(Icons.add, color: Colors.black),
       label: const Text('CRIAR OCORRÊNCIA', style: TextStyle(color: Colors.black)),
@@ -192,8 +211,11 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Icon(Icons.account_circle, color: Colors.white),
           const SizedBox(width: 8),
-          const Expanded(
-            child: Text('rm90899@dominio.fieb.edu.br', style: TextStyle(color: Colors.white)),
+          Expanded(
+            child: Text(
+              userRm != null ? 'RM: $userRm' : 'Carregando...',
+              style: const TextStyle(color: Colors.white)
+            ),
           ),
           GestureDetector(
             onTap: () async {
@@ -201,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (mounted) {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const PrincipalScreen()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               }
             },

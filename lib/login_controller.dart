@@ -45,19 +45,20 @@ class LoginController {
     return {'success': false, 'message': 'Falha na conexão'};
   }
   
-  static Future<void> _saveUserSession(String email) async {
+  static Future<void> _saveUserSession(String identifier) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_email', email);
-    await prefs.setBool('is_logged_in', true);
+    await prefs.setString('userRm', identifier);
+    await prefs.setBool('isLoggedIn', true);
   }
   
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('is_logged_in') ?? false;
+    return prefs.getBool('isLoggedIn') ?? false;
   }
   
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('userRm');
+    await prefs.remove('isLoggedIn');
   }
 }

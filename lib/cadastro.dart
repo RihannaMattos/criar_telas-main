@@ -67,6 +67,8 @@ class _CadastroScreenState extends State<CadastroScreen> with SingleTickerProvid
     } else {
       _showMessage(result['message']);
     }
+
+
   }
   
   void _showMessage(String message) {

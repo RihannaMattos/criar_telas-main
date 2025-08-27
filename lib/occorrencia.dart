@@ -24,9 +24,7 @@ class CriarOcorrenciaPage extends StatefulWidget {
  
 class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
   final TextEditingController localidadeController = TextEditingController();
-  String? andarSelecionado;
   final TextEditingController problemaController = TextEditingController();
-  final TextEditingController patrimonioController = TextEditingController();
  
   @override
   Widget build(BuildContext context) {
@@ -82,17 +80,6 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
-                    _buildDropdownButton(
-                      hint: 'SELECIONE O ANDAR',
-                      value: andarSelecionado,
-                      onChanged: (value) {
-                        setState(() {
-                          andarSelecionado = value;
-                        });
-                      },
-                      items: ['Térreo', '1º Andar', '2º Andar', '3º Andar', '4º Andar'],
-                    ),
                     const SizedBox(height: 20),
                     const Text('DESCREVA O PROBLEMA:',
                         style: TextStyle(fontWeight: FontWeight.bold)),
@@ -110,22 +97,6 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Text('PATRIMÔNIO:',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: patrimonioController,
-                      decoration: InputDecoration(
-                        hintText: 'ex: 041776',
-                        filled: true,
-                        fillColor: Colors.grey[300],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -133,9 +104,7 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
               _buildActionButton('ENVIAR', onPressed: () {
                 // Validar campos
                 if (localidadeController.text.isEmpty || 
-                    andarSelecionado == null || 
-                    problemaController.text.isEmpty || 
-                    patrimonioController.text.isEmpty) {
+                    problemaController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Por favor, preencha todos os campos obrigatórios'),
@@ -147,11 +116,11 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                 
                 // Adicionar ocorrência
                 final ocorrenciaService = OcorrenciaService();
-                ocorrenciaService.adicionarOcorrencia(
+                final novaOcorrencia = ocorrenciaService.adicionarOcorrencia(
                   laboratorio: localidadeController.text,
-                  andar: andarSelecionado!,
+                  andar: '',
                   problema: problemaController.text,
-                  patrimonio: patrimonioController.text,
+                  patrimonio: '',
                 );
                 
                 // Mostrar mensagem de sucesso
@@ -162,8 +131,8 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                   ),
                 );
                 
-                // Voltar para a tela anterior
-                Navigator.pop(context);
+                // Voltar para a tela anterior com resultado
+                Navigator.pop(context, novaOcorrencia);
               }, filled: true),
               const SizedBox(height: 12),
               _buildActionButton('CANCELAR', onPressed: () {
