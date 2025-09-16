@@ -17,11 +17,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   final OcorrenciaService _ocorrenciaService = OcorrenciaService();
   String? userRm;
+  late Future<List<Ocorrencia>> _futureOcorrencias;
   
   @override
   void initState() {
     super.initState();
     _loadUserRm();
+    _loadOcorrencias();
   }
   
   Future<void> _loadUserRm() async {
@@ -30,13 +32,17 @@ class _HomeScreenState extends State<HomeScreen> {
       userRm = rm;
     });
   }
+
+  void _loadOcorrencias() {
+    final isPending = selectedIndex == 0;
+    _futureOcorrencias = isPending
+        ? _ocorrenciaService.getOcorrenciasPendentes()
+        : _ocorrenciaService.getOcorrenciasSolucionadas();
+  }
   
   @override
   Widget build(BuildContext context) {
     final isPending = selectedIndex == 0;
-    final ocorrencias = isPending 
-        ? _ocorrenciaService.getOcorrenciasPendentes() 
-        : _ocorrenciaService.getOcorrenciasSolucionadas();
  
     return Scaffold(
       backgroundColor: Colors.white,
@@ -58,11 +64,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   GestureDetector(
-                    onTap: () => setState(() => selectedIndex = 0),
+                    onTap: () => setState(() {
+                      selectedIndex = 0;
+                      _loadOcorrencias();
+                    }),
                     child: _buildButton('PENDENTES', ativo: isPending),
                   ),
                   GestureDetector(
-                    onTap: () => setState(() => selectedIndex = 1),
+                    onTap: () => setState(() {
+                      selectedIndex = 1;
+                      _loadOcorrencias();
+                    }),
                     child: _buildButton('SOLUCIONADAS', ativo: !isPending),
                   ),
                 ],
@@ -77,19 +89,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: ocorrencias.isEmpty
-                  ? Center(
-                      child: Text(
-                        isPending 
-                            ? 'Não há ocorrências pendentes' 
-                            : 'Não há ocorrências solucionadas',
-                        style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          color: Colors.grey[600],
+                child: FutureBuilder<List<Ocorrencia>>(
+                  future: _futureOcorrencias,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Erro ao carregar ocorrências',
+                          style: TextStyle(color: Colors.red[700]),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
+                      );
+                    }
+                    final ocorrencias = snapshot.data ?? [];
+                    if (ocorrencias.isEmpty) {
+                      return Center(
+                        child: Text(
+                          isPending
+                              ? 'Não há ocorrências pendentes'
+                              : 'Não há ocorrências solucionadas',
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      );
+                    }
+                    return ListView.builder(
                       itemCount: ocorrencias.length,
                       itemBuilder: (context, index) {
                         final ocorrencia = ocorrencias[index];
@@ -113,7 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
-                    ),
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 16),
               _buildCriarOcorrenciaButton(),
@@ -195,7 +225,9 @@ class _HomeScreenState extends State<HomeScreen> {
         
         // Se uma nova ocorrência foi criada, atualizar a tela
         if (resultado != null) {
-          setState(() {});
+          setState(() {
+            _loadOcorrencias();
+          });
         }
       },
       icon: const Icon(Icons.add, color: Colors.black),

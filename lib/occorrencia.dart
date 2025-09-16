@@ -1,5 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'services/ocorrencia_service.dart';
+import '../models/ocorrencia_model.dart';
+import 'database_service.dart';
 
 void main() => runApp(const OcorrenciaApp());  //essa pág é de CRIAR ocorrência//
 
@@ -101,8 +106,7 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              _buildActionButton('ENVIAR', onPressed: () {
-                // Validar campos
+              _buildActionButton('ENVIAR', onPressed: () async {
                 if (localidadeController.text.isEmpty || 
                     problemaController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -114,16 +118,14 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                   return;
                 }
                 
-                // Adicionar ocorrência
                 final ocorrenciaService = OcorrenciaService();
-                final novaOcorrencia = ocorrenciaService.adicionarOcorrencia(
+                final novaOcorrencia = await ocorrenciaService.adicionarOcorrencia(
                   laboratorio: localidadeController.text,
                   andar: '',
                   problema: problemaController.text,
                   patrimonio: '',
                 );
                 
-                // Mostrar mensagem de sucesso
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Ocorrência criada com sucesso!'),
@@ -131,8 +133,9 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                   ),
                 );
                 
-                // Voltar para a tela anterior com resultado
-                Navigator.pop(context, novaOcorrencia);
+                if (mounted) {
+                  Navigator.pop(context, novaOcorrencia);
+                }
               }, filled: true),
               const SizedBox(height: 12),
               _buildActionButton('CANCELAR', onPressed: () {
