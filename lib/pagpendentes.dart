@@ -4,7 +4,7 @@ import 'login.dart';
 import 'services/ocorrencia_service.dart';
 import 'services/auth_service.dart';
 import 'models/ocorrencia_model.dart';
-import 'vizuocorrenciapendente.dart';
+import 'vizualizar_ocorrencia.dart';
  
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
