@@ -60,10 +60,12 @@ class _CadastroScreenState extends State<CadastroScreen> with SingleTickerProvid
     
     if (result['success']) {
       _showMessage(result['message']);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
     } else {
       _showMessage(result['message']);
     }

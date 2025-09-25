@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config/api_config.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000/api'; // Altere para sua URL
+  static String get baseUrl => '${ApiConfig.baseUrl}/api';
   
   static Future<bool> login(String rm, String senha) async {
     try {

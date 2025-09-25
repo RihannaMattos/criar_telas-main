@@ -46,16 +46,19 @@ class CadastroController {
           };
         }
       } on SocketException {
-        if (attempt == 2)
+        if (attempt == 2) {
           return {'success': false, 'message': 'Servidor indisponível'};
+        }
         await Future.delayed(Duration(seconds: attempt + 1));
       } on HttpException {
-        if (attempt == 2)
+        if (attempt == 2) {
           return {'success': false, 'message': 'Erro de conexão HTTP'};
+        }
         await Future.delayed(Duration(seconds: attempt + 1));
       } catch (e) {
-        if (attempt == 2)
+        if (attempt == 2) {
           return {'success': false, 'message': 'Erro de conexão'};
+        }
         await Future.delayed(Duration(seconds: attempt + 1));
       }
     }
