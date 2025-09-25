@@ -37,7 +37,7 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
 
   Future<void> carregarLocalidades() async {
     // Primeiro tenta carregar do servidor
-    final url = Uri.parse('http://localhost:3000/localidade/findAll');
+    final url = Uri.parse('http://localhost:8080/localidade/findAll');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -49,39 +49,6 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
     } catch (e) {
       // Se falhar, usa localidades estáticas
     }
-    
-    // Localidades estáticas como fallback
-    setState(() {
-      localidades = _getLocalidadesEstaticas();
-    });
-  }
-  
-  List<Map<String, dynamic>> _getLocalidadesEstaticas() {
-    List<Map<String, dynamic>> localidadesEstaticas = [];
-    
-    // Coordenação
-    localidadesEstaticas.add({'id': 1, 'nome': 'Coordenação'});
-    
-    // Térreo com 4 laboratórios
-    for (int lab = 1; lab <= 4; lab++) {
-      localidadesEstaticas.add({
-        'id': lab + 1,
-        'nome': 'Térreo - Lab $lab'
-      });
-    }
-    
-    // 4 andares com 4 laboratórios cada
-    for (int andar = 1; andar <= 4; andar++) {
-      for (int lab = 1; lab <= 4; lab++) {
-        int id = (andar * 10) + lab + 5;
-        localidadesEstaticas.add({
-          'id': id,
-          'nome': 'Andar $andar - Lab $lab'
-        });
-      }
-    }
-    
-    return localidadesEstaticas;
   }
 
   Future<void> enviarOcorrencia() async {
@@ -98,6 +65,12 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
       return;
     }
 
+    int? userId = await AuthService.getCurrentUserId();
+    if (userId == null) {
+      mostrarErro('Usuário não está logado');
+      return;
+    }
+
     // Garante que o ID seja um número válido
     int localidadeId;
     try {
@@ -107,23 +80,28 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
       return;
     }
 
-    final url = Uri.parse('http://localhost:3000/ocorrencia/save');
+    final url = Uri.parse('http://localhost:8080/ocorrencia/save');
     final body = {
-      'localidade_id': localidadeId,
+      'usuario': {
+        'id': userId,
+      },
+      'localidade': {
+        'id': localidadeId,
+      },
       'descricao': problemaController.text.trim(),
-      'statusOcorrencia': 'ABERTA',
-      'usuario_id': int.tryParse(userRm) ?? 1,
     };
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(body),
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         if (mounted) {
@@ -196,13 +174,12 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                     const SizedBox(height: 6),
                     DropdownButtonFormField<dynamic>(
                       value: localidadeSelecionada,
-                      items:
-                          localidades.map((local) {
-                            return DropdownMenuItem(
-                              value: local,
-                              child: Text(local['nome']),
-                            );
-                          }).toList(),
+                      items: localidades.map((local) {
+                        return DropdownMenuItem(
+                          value: local,
+                          child: Text(local['nome']),
+                        );
+                      }).toList(),
                       onChanged: (value) {
                         setState(() {
                           localidadeSelecionada = value;
