@@ -1,5 +1,4 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/user_model.dart';
 import 'database_service.dart';
 import 'api_service.dart';
 

@@ -37,8 +37,9 @@ class LoginController {
           };
         }
       } catch (e) {
-        if (attempt == 2)
+        if (attempt == 2) {
           return {'success': false, 'message': 'Erro de conexão'};
+        }
         await Future.delayed(Duration(seconds: attempt + 1));
       }
     }
