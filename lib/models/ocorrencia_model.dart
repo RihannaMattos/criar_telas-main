@@ -18,4 +18,17 @@ class Ocorrencia {
     required this.dataEnvio,
     this.resolvida = false,
   });
+
+  factory Ocorrencia.fromJson(Map<String, dynamic> json) {
+    return Ocorrencia(
+      id: json['id'] ?? 0,
+      laboratorio: json['laboratorio']?.toString() ?? '',
+      andar: json['andar']?.toString() ?? '',
+      problema: json['problema']?.toString() ?? '',
+      patrimonio: json['patrimonio']?.toString() ?? '',
+      fotoNome: json['fotoNome']?.toString(),
+      dataEnvio: json['dataEnvio'] != null ? DateTime.tryParse(json['dataEnvio'].toString()) ?? DateTime.now() : DateTime.now(),
+      resolvida: json['resolvida'] == true || json['resolvida'] == 'true',
+    );
+  }
 }

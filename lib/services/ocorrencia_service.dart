@@ -1,16 +1,11 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/ocorrencia_model.dart';
 
-// Serviço singleton para gerenciar ocorrências em memória
 class OcorrenciaService {
-  static final OcorrenciaService _instance = OcorrenciaService._internal();
+  static const String baseUrl = 'http://localhost:8080';
   
-  factory OcorrenciaService() {
-    return _instance;
-  }
-  
-  OcorrenciaService._internal();
-  
-  // Lista de ocorrências em memória
+  // Lista de ocorrências em memória (fallback)
   final List<Ocorrencia> _ocorrencias = [];
   int _nextId = 1;
   
@@ -34,19 +29,30 @@ class OcorrenciaService {
     return ocorrencia;
   }
   
-  // Obter todas as ocorrências
-  List<Ocorrencia> getOcorrencias() {
+  // Obter todas as ocorrências da API
+  Future<List<Ocorrencia>> getOcorrencias() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/ocorrencia/findAll'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => Ocorrencia.fromJson(item as Map<String, dynamic>)).toList();
+      }
+    } catch (e) {
+      print('Erro ao buscar ocorrências: $e');
+    }
     return List.from(_ocorrencias);
   }
   
   // Obter ocorrências pendentes
-  List<Ocorrencia> getOcorrenciasPendentes() {
-    return _ocorrencias.where((o) => !o.resolvida).toList();
+  Future<List<Ocorrencia>> getOcorrenciasPendentes() async {
+    final ocorrencias = await getOcorrencias();
+    return ocorrencias.where((o) => !o.resolvida).toList();
   }
   
   // Obter ocorrências solucionadas
-  List<Ocorrencia> getOcorrenciasSolucionadas() {
-    return _ocorrencias.where((o) => o.resolvida).toList();
+  Future<List<Ocorrencia>> getOcorrenciasSolucionadas() async {
+    final ocorrencias = await getOcorrencias();
+    return ocorrencias.where((o) => o.resolvida).toList();
   }
   
   // Obter uma ocorrência pelo ID

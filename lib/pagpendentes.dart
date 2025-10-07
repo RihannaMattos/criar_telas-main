@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'occorrencia.dart';
 import 'login.dart';
-import 'services/ocorrencia_service.dart';
 import 'services/auth_service.dart';
 import 'models/ocorrencia_model.dart';
 import 'vizuocorrenciapendente.dart';
+import 'controllers/ocorrencia_controller.dart';
  
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
  
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
-  final OcorrenciaService _ocorrenciaService = OcorrenciaService();
+  final OcorrenciaController _ocorrenciaController = OcorrenciaController();
   String? userRm;
   
   @override
@@ -31,12 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   
+  Future<List<Ocorrencia>> _getOcorrencias() {
+    return selectedIndex == 0 
+        ? _ocorrenciaController.buscarOcorrenciasPendentes()
+        : _ocorrenciaController.buscarOcorrenciasSolucionadas();
+  }
+  
   @override
   Widget build(BuildContext context) {
     final isPending = selectedIndex == 0;
-    final ocorrencias = isPending 
-        ? _ocorrenciaService.getOcorrenciasPendentes() 
-        : _ocorrenciaService.getOcorrenciasSolucionadas();
  
     return Scaffold(
       backgroundColor: Colors.white,
@@ -77,19 +80,39 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: ocorrencias.isEmpty
-                  ? Center(
-                      child: Text(
-                        isPending 
-                            ? 'Não há ocorrências pendentes' 
-                            : 'Não há ocorrências solucionadas',
-                        style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          color: Colors.grey[600],
+                child: FutureBuilder<List<Ocorrencia>>(
+                  future: _getOcorrencias(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Erro ao carregar ocorrências',
+                          style: TextStyle(color: Colors.red[600]),
                         ),
-                      ),
-                    )
-                  : ListView.builder(
+                      );
+                    }
+                    
+                    final ocorrencias = snapshot.data ?? [];
+                    
+                    if (ocorrencias.isEmpty) {
+                      return Center(
+                        child: Text(
+                          isPending 
+                              ? 'Não há ocorrências pendentes' 
+                              : 'Não há ocorrências solucionadas',
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      );
+                    }
+                    
+                    return ListView.builder(
                       itemCount: ocorrencias.length,
                       itemBuilder: (context, index) {
                         final ocorrencia = ocorrencias[index];
@@ -113,7 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
-                    ),
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 16),
               _buildCriarOcorrenciaButton(),
