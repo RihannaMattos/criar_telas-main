@@ -7,23 +7,7 @@ class AuthService {
   static const String _isLoggedInKey = 'isLoggedIn';
   static const String _userRmKey = 'userRm';
 
-  static Future<bool> login(String rm, String senha) async {
-    // Tenta primeiro com a API
-    bool apiSuccess = await ApiService.login(rm, senha);
-    if (apiSuccess) {
-      await _saveSession(rm);
-      return true;
-    }
-    
-    // Se falhar, tenta com banco local
-    User? user = await DatabaseService.loginUser(rm, senha);
-    if (user != null) {
-      await _saveSession(rm);
-      return true;
-    }
-    return false;
-  }
-
+  
   static Future<String> register(String rm, String senha) async {
     // Valida formato do RM
     if (!_isValidRM(rm)) {
@@ -68,6 +52,11 @@ class AuthService {
   static Future<String?> getCurrentUserRm() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(_userRmKey);
+  }
+
+  static Future<int?> getCurrentUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('userId');
   }
 
   static Future<void> logout() async {

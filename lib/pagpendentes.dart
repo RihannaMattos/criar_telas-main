@@ -3,8 +3,12 @@ import 'occorrencia.dart';
 import 'login.dart';
 import 'services/auth_service.dart';
 import 'models/ocorrencia_model.dart';
+<<<<<<< HEAD
 import 'vizuocorrenciapendente.dart';
 import 'controllers/ocorrencia_controller.dart';
+=======
+import 'vizualizar_ocorrencia.dart';
+>>>>>>> 60d53951c411376c76b642f8a2a859ec2e8f4491
  
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,11 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
   final OcorrenciaController _ocorrenciaController = OcorrenciaController();
   String? userRm;
+  late Future<List<Ocorrencia>> _futureOcorrencias;
   
   @override
   void initState() {
     super.initState();
     _loadUserRm();
+    _loadOcorrencias();
   }
   
   Future<void> _loadUserRm() async {
@@ -29,6 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       userRm = rm;
     });
+  }
+
+  void _loadOcorrencias() {
+    final isPending = selectedIndex == 0;
+    _futureOcorrencias = isPending
+        ? _ocorrenciaService.getOcorrenciasPendentes()
+        : _ocorrenciaService.getOcorrenciasSolucionadas();
   }
   
   Future<List<Ocorrencia>> _getOcorrencias() {
@@ -61,11 +74,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   GestureDetector(
-                    onTap: () => setState(() => selectedIndex = 0),
+                    onTap: () => setState(() {
+                      selectedIndex = 0;
+                      _loadOcorrencias();
+                    }),
                     child: _buildButton('PENDENTES', ativo: isPending),
                   ),
                   GestureDetector(
-                    onTap: () => setState(() => selectedIndex = 1),
+                    onTap: () => setState(() {
+                      selectedIndex = 1;
+                      _loadOcorrencias();
+                    }),
                     child: _buildButton('SOLUCIONADAS', ativo: !isPending),
                   ),
                 ],
@@ -81,16 +100,24 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 12),
               Expanded(
                 child: FutureBuilder<List<Ocorrencia>>(
+<<<<<<< HEAD
                   future: _getOcorrencias(),
+=======
+                  future: _futureOcorrencias,
+>>>>>>> 60d53951c411376c76b642f8a2a859ec2e8f4491
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
+<<<<<<< HEAD
                     
+=======
+>>>>>>> 60d53951c411376c76b642f8a2a859ec2e8f4491
                     if (snapshot.hasError) {
                       return Center(
                         child: Text(
                           'Erro ao carregar ocorrências',
+<<<<<<< HEAD
                           style: TextStyle(color: Colors.red[600]),
                         ),
                       );
@@ -103,6 +130,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           isPending 
                               ? 'Não há ocorrências pendentes' 
+=======
+                          style: TextStyle(color: Colors.red[700]),
+                        ),
+                      );
+                    }
+                    final ocorrencias = snapshot.data ?? [];
+                    if (ocorrencias.isEmpty) {
+                      return Center(
+                        child: Text(
+                          isPending
+                              ? 'Não há ocorrências pendentes'
+>>>>>>> 60d53951c411376c76b642f8a2a859ec2e8f4491
                               : 'Não há ocorrências solucionadas',
                           style: TextStyle(
                             fontStyle: FontStyle.italic,
@@ -111,7 +150,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     }
+<<<<<<< HEAD
                     
+=======
+>>>>>>> 60d53951c411376c76b642f8a2a859ec2e8f4491
                     return ListView.builder(
                       itemCount: ocorrencias.length,
                       itemBuilder: (context, index) {
@@ -220,7 +262,9 @@ class _HomeScreenState extends State<HomeScreen> {
         
         // Se uma nova ocorrência foi criada, atualizar a tela
         if (resultado != null) {
-          setState(() {});
+          setState(() {
+            _loadOcorrencias();
+          });
         }
       },
       icon: const Icon(Icons.add, color: Colors.black),

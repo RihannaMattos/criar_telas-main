@@ -85,7 +85,7 @@ class DatabaseService {
       );
       return true;
     } catch (e) {
-      print('Erro ao registrar usuário: $e');
+
       return false;
     }
   }
