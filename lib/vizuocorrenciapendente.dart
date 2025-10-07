@@ -52,9 +52,8 @@ class VisualizarOcorrenciaPage extends StatelessWidget {
                     _buildInfoRow('Status:', 
                       ocorrencia.resolvida ? 'SOLUCIONADA' : 'PENDENTE',
                       valueColor: ocorrencia.resolvida ? Colors.green : Colors.red),
-                    _buildInfoRow('Laboratório:', ocorrencia.laboratorio),
-                    _buildInfoRow('Andar:', ocorrencia.andar),
-                    _buildInfoRow('Patrimônio:', ocorrencia.patrimonio),
+                    _buildInfoRow('Localidade:', 
+                      ocorrencia.localidadeNome?.isNotEmpty == true ? ocorrencia.localidadeNome! : 'Não informado'),
                     const SizedBox(height: 10),
                     const Text(
                       'Descrição do Problema:',

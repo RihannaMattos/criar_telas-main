@@ -195,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text('Data De Envio: ${ocorrencia.dataEnvio.day}/${ocorrencia.dataEnvio.month}/${ocorrencia.dataEnvio.year}'),
           Text('Nº Da Ocorrência: ${ocorrencia.id}'),
-          Text('Lab: ${ocorrencia.laboratorio} - ${ocorrencia.andar}'),
+          Text('Localidade: ${ocorrencia.localidadeNome?.isNotEmpty == true ? ocorrencia.localidadeNome! : 'Não informado'}'),
           const SizedBox(height: 8),
           Text('Status: $status',
               style: TextStyle(color: color, fontWeight: FontWeight.bold)),

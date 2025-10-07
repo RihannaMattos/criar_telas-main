@@ -7,6 +7,7 @@ class Ocorrencia {
   final String? fotoNome;
   final DateTime dataEnvio;
   bool resolvida;
+  final String? localidadeNome;
 
   Ocorrencia({
     required this.id,
@@ -17,6 +18,7 @@ class Ocorrencia {
     this.fotoNome,
     required this.dataEnvio,
     this.resolvida = false,
+    this.localidadeNome,
   });
 
   factory Ocorrencia.fromJson(Map<String, dynamic> json) {
@@ -24,11 +26,13 @@ class Ocorrencia {
       id: json['id'] ?? 0,
       laboratorio: json['laboratorio']?.toString() ?? '',
       andar: json['andar']?.toString() ?? '',
-      problema: json['problema']?.toString() ?? '',
+      problema: json['descricao']?.toString() ?? json['problema']?.toString() ?? '',
       patrimonio: json['patrimonio']?.toString() ?? '',
       fotoNome: json['fotoNome']?.toString(),
-      dataEnvio: json['dataEnvio'] != null ? DateTime.tryParse(json['dataEnvio'].toString()) ?? DateTime.now() : DateTime.now(),
-      resolvida: json['resolvida'] == true || json['resolvida'] == 'true',
+      dataEnvio: json['dataOcorrencia'] != null ? DateTime.tryParse(json['dataOcorrencia'].toString()) ?? DateTime.now() : 
+                 json['dataEnvio'] != null ? DateTime.tryParse(json['dataEnvio'].toString()) ?? DateTime.now() : DateTime.now(),
+      resolvida: json['statusOcorrencia'] == 'SOLUCIONADA' || json['resolvida'] == true || json['resolvida'] == 'true',
+      localidadeNome: json['localidade']?['nome']?.toString(),
     );
   }
 }

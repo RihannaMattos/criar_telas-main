@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'models/ocorrencia_model.dart';
 
 class VisualizarOcorrenciaPage extends StatefulWidget {
-  final String status;
+  final Ocorrencia ocorrencia;
 
-  const VisualizarOcorrenciaPage({super.key, required this.status});
+  const VisualizarOcorrenciaPage({super.key, required this.ocorrencia});
 
   @override
   State<VisualizarOcorrenciaPage> createState() => _VisualizarOcorrenciaPageState();
@@ -21,7 +22,7 @@ class _VisualizarOcorrenciaPageState extends State<VisualizarOcorrenciaPage> {
   }
 
   void _atualizarStatus() {
-    isPendente = widget.status.toUpperCase() == 'PENDENTE';
+    isPendente = !widget.ocorrencia.resolvida;
     statusColor = isPendente ? Colors.red[800]! : Colors.green[700]!;
     statusTexto = isPendente ? 'PENDENTE' : 'SOLUCIONADA';
   }
@@ -51,16 +52,16 @@ class _VisualizarOcorrenciaPageState extends State<VisualizarOcorrenciaPage> {
                         onPressed: () => Navigator.pop(context),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'DATA DE ENVIO  00/00/00\nNº DA OCORRÊNCIA: XXX',
-                        style: TextStyle(
+                      Text(
+                        'DATA DE ENVIO  ${widget.ocorrencia.dataEnvio.day.toString().padLeft(2, '0')}/${widget.ocorrencia.dataEnvio.month.toString().padLeft(2, '0')}/${widget.ocorrencia.dataEnvio.year}\nNº DA OCORRÊNCIA: ${widget.ocorrencia.id}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 24),
                       const Text(
-                        'ANDAR DO LABORATÓRIO:',
+                        'LOCALIDADE:',
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
@@ -77,33 +78,9 @@ class _VisualizarOcorrenciaPageState extends State<VisualizarOcorrenciaPage> {
                             ),
                           ],
                         ),
-                        child: const Text(
-                          'ANDAR SELECIONADO',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'NÚMERO DO LABORATÓRIO:',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              offset: Offset(2, 4),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: const Text(
-                          'LAB. SELECIONADO',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        child: Text(
+                          widget.ocorrencia.laboratorio.isNotEmpty ? widget.ocorrencia.laboratorio : 'Não informado',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -119,9 +96,9 @@ class _VisualizarOcorrenciaPageState extends State<VisualizarOcorrenciaPage> {
                           color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(16.0),
                         ),
-                        child: const Text(
-                          'Texto da Descrição do problema pelo usuário...',
-                          style: TextStyle(color: Colors.black54),
+                        child: Text(
+                          widget.ocorrencia.problema.isNotEmpty ? widget.ocorrencia.problema : 'Descrição não informada',
+                          style: const TextStyle(color: Colors.black54),
                         ),
                       ),
                       const SizedBox(height: 24),
