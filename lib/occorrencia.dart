@@ -27,7 +27,6 @@ class CriarOcorrenciaPage extends StatefulWidget {
  
 class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
   final TextEditingController problemaController = TextEditingController();
-  final OcorrenciaController _ocorrenciaController = OcorrenciaController();
   String? selectedLocalidade;
   List<Map<String, dynamic>> localidades = [];
   bool isLoadingLocalidades = true;
@@ -173,7 +172,7 @@ class _CriarOcorrenciaPageState extends State<CriarOcorrenciaPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: DropdownButtonFormField<String>(
-                              initialValue: selectedLocalidade,
+                              value: selectedLocalidade,
                               hint: const Text('Selecione uma localidade'),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(

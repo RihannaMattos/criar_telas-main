@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'models/ocorrencia_model.dart';
+import 'services/ocorrencia_cache_service.dart';
+import 'editar_ocorrencia.dart';
 
-class VisualizarOcorrenciaPage extends StatelessWidget {
+class VisualizarOcorrenciaPage extends StatefulWidget {
   final Ocorrencia ocorrencia;
 
   const VisualizarOcorrenciaPage({
@@ -9,6 +11,11 @@ class VisualizarOcorrenciaPage extends StatelessWidget {
     required this.ocorrencia,
   });
 
+  @override
+  State<VisualizarOcorrenciaPage> createState() => _VisualizarOcorrenciaPageState();
+}
+
+class _VisualizarOcorrenciaPageState extends State<VisualizarOcorrenciaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +47,7 @@ class VisualizarOcorrenciaPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Ocorrência #${ocorrencia.id}',
+                      'Ocorrência #${widget.ocorrencia.id}',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -48,12 +55,12 @@ class VisualizarOcorrenciaPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     _buildInfoRow('Data de Envio:', 
-                      '${ocorrencia.dataEnvio.day}/${ocorrencia.dataEnvio.month}/${ocorrencia.dataEnvio.year}'),
+                      '${widget.ocorrencia.dataEnvio.day}/${widget.ocorrencia.dataEnvio.month}/${widget.ocorrencia.dataEnvio.year}'),
                     _buildInfoRow('Status:', 
-                      ocorrencia.resolvida ? 'SOLUCIONADA' : 'PENDENTE',
-                      valueColor: ocorrencia.resolvida ? Colors.green : Colors.red),
+                      widget.ocorrencia.resolvida ? 'SOLUCIONADA' : 'PENDENTE',
+                      valueColor: widget.ocorrencia.resolvida ? Colors.green : Colors.red),
                     _buildInfoRow('Localidade:', 
-                      ocorrencia.localidadeNome?.isNotEmpty == true ? ocorrencia.localidadeNome! : 'Não informado'),
+                      widget.ocorrencia.localidadeNome?.isNotEmpty == true ? widget.ocorrencia.localidadeNome! : 'Não informado'),
                     const SizedBox(height: 10),
                     const Text(
                       'Descrição do Problema:',
@@ -67,21 +74,120 @@ class VisualizarOcorrenciaPage extends StatelessWidget {
                         color: Colors.grey[200],
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(ocorrencia.problema),
+                      child: Text(widget.ocorrencia.problema),
                     ),
-                    if (ocorrencia.fotoNome != null) ...[
+                    if (widget.ocorrencia.fotoNome != null) ...[
                       const SizedBox(height: 15),
                       const Text(
                         'Foto Anexada:',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 5),
-                      Text(ocorrencia.fotoNome!),
+                      Text(widget.ocorrencia.fotoNome!),
                     ],
                   ],
                 ),
               ),
               const SizedBox(height: 20),
+              // Avisos e botões de ação
+              if (_podeEditar()) ...[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.green[100],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info, color: Colors.green[700], size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Você pode editar ou apagar esta ocorrência por ${_tempoRestante()}.',
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: () async {
+                          final resultado = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditarOcorrenciaPage(
+                                ocorrencia: widget.ocorrencia,
+                              ),
+                            ),
+                          );
+                          
+                          if (resultado == true) {
+                            Navigator.pop(context, true);
+                          }
+                        },
+                        child: const Text('EDITAR'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        onPressed: () => _mostrarDialogoApagar(),
+                        child: const Text('APAGAR'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ] else if (!widget.ocorrencia.resolvida) ...[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.orange[100],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.warning, color: Colors.orange[700], size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'O tempo limite de 15 minutos para editar ou apagar esta ocorrência expirou.',
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 15),
+              ],
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -104,6 +210,83 @@ class VisualizarOcorrenciaPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  bool _podeEditar() {
+    final agora = DateTime.now();
+    final diferenca = agora.difference(widget.ocorrencia.dataEnvio);
+    return diferenca.inMinutes <= 15 && !widget.ocorrencia.resolvida;
+  }
+
+  String _tempoRestante() {
+    final agora = DateTime.now();
+    final diferenca = agora.difference(widget.ocorrencia.dataEnvio);
+    final minutosRestantes = 15 - diferenca.inMinutes;
+    
+    if (minutosRestantes <= 0) {
+      return "tempo esgotado";
+    }
+    
+    return "${minutosRestantes}min";
+  }
+
+  void _mostrarDialogoApagar() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: Text(
+            'Tem certeza que deseja apagar a ocorrência #${widget.ocorrencia.id}?\n\nEsta ação não pode ser desfeita.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('CANCELAR'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _apagarOcorrencia();
+              },
+              child: const Text('APAGAR'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _apagarOcorrencia() async {
+    try {
+      // Marca a ocorrência como apagada no cache local
+      await OcorrenciaCacheService.marcarComoApagada(widget.ocorrencia.id);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ocorrência apagada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Volta para a tela anterior indicando que houve mudança
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erro ao apagar ocorrência'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildInfoRow(String label, String value, {Color? valueColor}) {

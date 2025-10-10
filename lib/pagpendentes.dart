@@ -117,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         final ocorrencia = ocorrencias[index];
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final resultado = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => VisualizarOcorrenciaPage(
@@ -126,6 +126,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             );
+                            
+                            // Se uma ocorrência foi editada, atualizar a lista
+                            if (resultado == true) {
+                              setState(() {});
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 10.0),
@@ -181,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final status = isPending ? 'PENDENTE' : 'SOLUCIONADA';
     final color = isPending ? const Color(0xFFD32F2F) : Colors.green;
     final bgColor = isPending ? const Color(0xFFFFE5E5) : Colors.green[100]!;
+    final podeEditar = _podeEditarOcorrencia(ocorrencia);
     
     return Container(
       width: double.infinity,
@@ -189,16 +195,54 @@ class _HomeScreenState extends State<HomeScreen> {
         color: bgColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(2, 2))],
+        border: podeEditar ? Border.all(color: Colors.orange, width: 2) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Data De Envio: ${ocorrencia.dataEnvio.day}/${ocorrencia.dataEnvio.month}/${ocorrencia.dataEnvio.year}'),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Data De Envio: ${ocorrencia.dataEnvio.day}/${ocorrencia.dataEnvio.month}/${ocorrencia.dataEnvio.year}'),
+              ),
+              if (podeEditar)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    'EDITÁVEL/APAGÁVEL',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           Text('Nº Da Ocorrência: ${ocorrencia.id}'),
           Text('Localidade: ${ocorrencia.localidadeNome?.isNotEmpty == true ? ocorrencia.localidadeNome! : 'Não informado'}'),
           const SizedBox(height: 8),
-          Text('Status: $status',
-              style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Status: $status',
+                    style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+              ),
+              if (podeEditar)
+                Text(
+                  _tempoRestanteOcorrencia(ocorrencia),
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -228,6 +272,24 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
  
+  bool _podeEditarOcorrencia(Ocorrencia ocorrencia) {
+    final agora = DateTime.now();
+    final diferenca = agora.difference(ocorrencia.dataEnvio);
+    return diferenca.inMinutes <= 15 && !ocorrencia.resolvida;
+  }
+
+  String _tempoRestanteOcorrencia(Ocorrencia ocorrencia) {
+    final agora = DateTime.now();
+    final diferenca = agora.difference(ocorrencia.dataEnvio);
+    final minutosRestantes = 15 - diferenca.inMinutes;
+    
+    if (minutosRestantes <= 0) {
+      return "Expirado";
+    }
+    
+    return "${minutosRestantes}min";
+  }
+
   Widget _buildBottomBar() {
     return Container(
       color: const Color(0xFF0C1226),

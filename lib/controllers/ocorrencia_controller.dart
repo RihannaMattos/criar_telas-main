@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/ocorrencia_model.dart';
+import '../services/ocorrencia_cache_service.dart';
 
 class OcorrenciaController {
   static const String baseUrl = 'http://localhost:8080';
@@ -15,7 +16,31 @@ class OcorrenciaController {
         
         for (var item in data) {
           try {
-            ocorrencias.add(Ocorrencia.fromJson(item as Map<String, dynamic>));
+            final ocorrencia = Ocorrencia.fromJson(item as Map<String, dynamic>);
+            
+            // Verifica se a ocorrência foi apagada localmente
+            final foiApagada = await OcorrenciaCacheService.foiApagada(ocorrencia.id);
+            if (!foiApagada) {
+              // Aplica edições do cache se existirem
+              final dadosEditados = await OcorrenciaCacheService.obterDadosEditados(ocorrencia.id);
+              if (dadosEditados != null) {
+                // Cria uma nova instância com os dados editados
+                final ocorrenciaEditada = Ocorrencia(
+                  id: ocorrencia.id,
+                  laboratorio: ocorrencia.laboratorio,
+                  andar: ocorrencia.andar,
+                  problema: dadosEditados['descricao'] ?? ocorrencia.problema,
+                  patrimonio: ocorrencia.patrimonio,
+                  fotoNome: ocorrencia.fotoNome,
+                  dataEnvio: ocorrencia.dataEnvio,
+                  resolvida: ocorrencia.resolvida,
+                  localidadeNome: dadosEditados['localidade'] ?? ocorrencia.localidadeNome,
+                );
+                ocorrencias.add(ocorrenciaEditada);
+              } else {
+                ocorrencias.add(ocorrencia);
+              }
+            }
           } catch (e) {
             print('Erro ao processar item: $item - Erro: $e');
           }
